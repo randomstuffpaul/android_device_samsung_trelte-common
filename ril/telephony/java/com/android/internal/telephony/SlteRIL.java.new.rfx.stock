@@ -22,11 +22,10 @@ import android.content.Context;
 import android.telephony.Rlog;
 import android.os.Message;
 import android.os.Parcel;
+import android.os.SystemClock;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SignalStrength;
 import android.telephony.SmsManager;
-import com.android.internal.telephony.dataconnection.DataCallResponse;
-import com.android.internal.telephony.dataconnection.DcFailCause;
 import com.android.internal.telephony.uicc.IccCardApplicationStatus;
 import com.android.internal.telephony.uicc.IccCardStatus;
 import com.android.internal.telephony.uicc.IccRefreshResponse;
@@ -54,11 +53,12 @@ public class SlteRIL extends RIL {
     private static final int RIL_UNSOL_AM = 11010;
     private static final int RIL_UNSOL_SIM_PB_READY = 11021;
 
-    private static final int RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED = 1036;
-    private static final int RIL_UNSOL_WB_AMR_STATE = 11017;
-    private static final int RIL_UNSOL_RESPONSE_HANDOVER = 11021;
+    private static final int RIL_UNSOL_WB_AMR_STATE = 20017;
 
-    //private static final int RIL_UNSOL_WB_AMR_STATE = 20017;
+    private static final long SEND_SMS_TIMEOUT_IN_MS = 30000;
+
+    private Object mSMSLock = new Object();
+    private boolean mIsSendingSMS = false;
 
     public SlteRIL(Context context, int preferredNetworkType, int cdmaSubscription) {
         this(context, preferredNetworkType, cdmaSubscription, null);
@@ -87,6 +87,47 @@ public class SlteRIL extends RIL {
     public void
     acceptCall(Message result) {
         acceptCall(0, result);
+    }
+
+    /**
+     *  Translates EF_SMS status bits to a status value compatible with
+     *  SMS AT commands.  See TS 27.005 3.1.
+     */
+    private int translateStatus(int status) {
+        switch(status & 0x7) {
+            case SmsManager.STATUS_ON_ICC_READ:
+                return 1;
+            case SmsManager.STATUS_ON_ICC_UNREAD:
+                return 0;
+            case SmsManager.STATUS_ON_ICC_SENT:
+                return 3;
+            case SmsManager.STATUS_ON_ICC_UNSENT:
+                return 2;
+        }
+
+        // Default to READ.
+        return 1;
+    }
+    
+    @Override
+    public void writeSmsToSim(int status, String smsc, String pdu, Message response) {
+        status = translateStatus(status);
+        
+        RILRequest rr = RILRequest.obtain(RIL_REQUEST_WRITE_SMS_TO_SIM,
+                                          response);
+        
+        rr.mParcel.writeInt(status);
+        rr.mParcel.writeString(pdu);
+        rr.mParcel.writeString(smsc);
+        rr.mParcel.writeInt(255);     /* Samsung */
+        
+        if (RILJ_LOGV) {
+            riljLog(rr.serialString() + "> "
+                    + requestToString(rr.mRequest)
+                    + " " + status);
+        }
+        
+        send(rr);
     }
 
     @Override
@@ -268,7 +309,7 @@ public class SlteRIL extends RIL {
     @Override
     protected Object
     responseSignalStrength(Parcel p) {
-        int gsmSignalStrength = p.readInt() & 0xff;
+        int gsmSignalStrength = p.readInt();
         int gsmBitErrorRate = p.readInt();
         int cdmaDbm = p.readInt();
         int cdmaEcio = p.readInt();
@@ -284,6 +325,7 @@ public class SlteRIL extends RIL {
         // constructor sets default true, makeSignalStrengthFromRilParcel does not set it
         boolean isGsm = true;
 
+        /*
         if ((lteSignalStrength & 0xff) == 255 || lteSignalStrength == 99) {
             lteSignalStrength = 99;
             lteRsrp = SignalStrength.INVALID;
@@ -293,6 +335,10 @@ public class SlteRIL extends RIL {
         } else {
             lteSignalStrength &= 0xff;
         }
+        */
+        // Count of bars instead of the real signal strength
+        gsmSignalStrength = ((gsmSignalStrength & 0xFF00) >> 8) * 3;
+        lteSignalStrength = ((lteSignalStrength & 0xFF00) >> 8) * 3;
 
         if (RILJ_LOGD)
             riljLog("gsmSignalStrength:" + gsmSignalStrength + " gsmBitErrorRate:" + gsmBitErrorRate +
@@ -307,10 +353,57 @@ public class SlteRIL extends RIL {
                 tdScdmaRscp, isGsm);
     }
 
-    private void constructGsmSendSmsRilRequest(RILRequest rr, String smscPDU, String pdu) {
-        rr.mParcel.writeInt(2);
-        rr.mParcel.writeString(smscPDU);
-        rr.mParcel.writeString(pdu);
+    @Override
+    public void
+    sendSMS (String smscPDU, String pdu, Message result) {
+        smsLock();
+        super.sendSMS(smscPDU, pdu, result);
+    }
+    
+    private void smsLock(){
+        // Do not send a new SMS until the response for the previous SMS has been received
+        //   * for the error case where the response never comes back, time out after
+        //     30 seconds and just try the next SEND_SMS
+        synchronized (mSMSLock) {
+            long timeoutTime  = SystemClock.elapsedRealtime() + SEND_SMS_TIMEOUT_IN_MS;
+            long waitTimeLeft = SEND_SMS_TIMEOUT_IN_MS;
+            while (mIsSendingSMS && (waitTimeLeft > 0)) {
+                Rlog.d(RILJ_LOG_TAG, "sendSMS() waiting for response of previous SEND_SMS");
+                try {
+                    mSMSLock.wait(waitTimeLeft);
+                } catch (InterruptedException ex) {
+                    // ignore the interrupt and rewait for the remainder
+                }
+                waitTimeLeft = timeoutTime - SystemClock.elapsedRealtime();
+            }
+            if (waitTimeLeft <= 0) {
+                Rlog.e(RILJ_LOG_TAG, "sendSms() timed out waiting for response of previous SEND_SMS");
+            }
+            mIsSendingSMS = true;
+        }
+    }
+
+    @Override
+    protected Object
+    responseSMS(Parcel p) {
+        // Notify that sendSMS() can send the next SMS
+        synchronized (mSMSLock) {
+            mIsSendingSMS = false;
+            mSMSLock.notify();
+        }
+
+        return super.responseSMS(p);
+    }
+
+    /**
+     * The RIL can't handle the RIL_REQUEST_SEND_SMS_EXPECT_MORE
+     * request properly, so we use RIL_REQUEST_SEND_SMS instead.
+     */
+    @Override
+    public void sendSMSExpectMore(String smscPDU, String pdu, Message result) {
+        Rlog.v(RILJ_LOG_TAG, "XMM7260: sendSMSExpectMore");
+        
+        sendSMS(smscPDU, pdu, result);
     }
 
     // This method is used in the search network functionality.
@@ -378,18 +471,6 @@ public class SlteRIL extends RIL {
         switch (newResponse) {
             case RIL_UNSOL_AM:
                 ret = responseString(p);
-                break;
-            case RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED:
-                ret = responseVoid(p);
-                break;
-            case RIL_UNSOL_DEVICE_READY_NOTI:
-                ret = responseVoid(p);
-                break;
-            case RIL_UNSOL_WB_AMR_STATE:
-                ret = responseInts(p);
-                break;
-            case RIL_UNSOL_RESPONSE_HANDOVER:
-                ret = responseVoid(p);
                 break;
             case RIL_UNSOL_STK_SEND_SMS_RESULT:
                 ret = responseInts(p);
