@@ -112,8 +112,8 @@
             32 - Camera
             64 - Volume rocker
          For example, a device with Home, Back and Menu keys would set this
-         config to 7.
-    <integer name="config_deviceHardwareKeys">83</integer> -->
+         config to 7. -->
+    <integer name="config_deviceHardwareKeys">83</integer>
 
     <!-- Hardware keys present on the device with the ability to wake, stored as a bit field.
          This integer should equal the sum of the corresponding value for each
@@ -126,8 +126,8 @@
             32 - Camera
             64 - Volume rocker
          For example, a device with Home, Back and Menu keys would set this
-         config to 7.
-    <integer name="config_deviceHardwareWakeKeys">65</integer> -->
+         config to 7. -->
+    <integer name="config_deviceHardwareWakeKeys">64</integer>
 
     <!-- Control the behavior when the user long presses the home button.
             0 - Nothing
@@ -141,7 +141,7 @@
     -->
     <integer name="config_longPressOnHomeBehavior">3</integer>
 
-    <!-- Control the behavior when the user double-taps the home button.
+    <!-- Control the behavior when the user long presses the app switch button.
             0 - Nothing
             1 - Menu
             2 - Recent apps view in SystemUI
@@ -151,14 +151,14 @@
          This needs to match the constants in
          policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
     -->
-    <integer name="config_doubleTapOnHomeBehavior">2</integer>
+    <integer name="config_longPressOnAppSwitchBehavior">1</integer>
 
     <!-- ############################################################## -->
     <!-- ### DISPLAY                                                    -->
     <!-- ############################################################## -->
 
     <!-- If this is true, the screen will fade off. -->
-    <bool name="config_animateScreenLights">true</bool>
+    <bool name="config_animateScreenLights">false</bool>
 
     <!-- If this is true, the screen will come on when you unplug usb/power/whatever. -->
     <bool name="config_unplugTurnsOnScreen">true</bool>
@@ -217,22 +217,9 @@
          that can be set by the user. -->
     <integer name="config_screenBrightnessDim">10</integer>
 
-    <!-- Is the notification LED intrusive? Used to decide if there should be a disable option 
-    <bool name="config_intrusiveNotificationLed">true</bool>-->
-
-    <!-- Is the battery LED intrusive? Used to decide if there should be a disable option 
-    <bool name="config_intrusiveBatteryLed">true</bool>-->
-
-    <!-- Does the notification LED support multiple colors?
-         Used to decide if the user can change the colors
-    <bool name="config_multiColorNotificationLed">true</bool> -->
-
-    <!-- Boolean to enable stk functionality on Samsung phones 
-    <bool name="config_samsung_stk">true</bool>-->
-    
     <!-- Doze (Ambient display) -->
     <string name="config_dozeComponent">com.android.systemui/com.android.systemui.doze.DozeService</string>
-    
+
     <!-- Permit doze mode to operate -->
     <bool name="config_enableAutoPowerModes">true</bool>
 
@@ -240,14 +227,10 @@
          device from the display on/off state. -->
     <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>
 
-    <!-- Enable doze powersaving -->		
-    <bool name="config_enableAutoPowerModes">true</bool>
-
     <!-- Allow screen mirroring/miracast -->
     <bool name="config_enableWifiDisplay">true</bool>
-    
-    <!-- Whether device supports double tap to wake -->
-    <!--bool name="config_supportDoubleTapWake">true</bool-->    
+    <!-- Our gralloc has support for protected buffers -->
+    <bool name="config_wifiDisplaySupportsProtectedBuffers">true</bool>
 
     <!-- Indicate whether the lid state impacts the accessibility of
          the navigation buttons.  0 means it doesn't, 1 means it is accessible
@@ -260,7 +243,10 @@
          The default is false. -->
     <bool name="config_lidControlsSleep">true</bool>
 
-    <!-- Our gralloc has support for protected buffers -->
-    <bool name="config_wifiDisplaySupportsProtectedBuffers">true</bool>
+    <!--  Maximum number of supported users -->
+    <integer name="config_multiuserMaximumUsers">4</integer>
+    <!--  Whether Multiuser UI should be shown -->
+    <bool name="config_enableMultiUserUI">true</bool>
+    <!-- The device supports freeform window management -->
+    <bool name="config_freeformWindowManagement">true</bool>
 </resources>
-
