@@ -5,12 +5,10 @@ TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
 
 # Platform
+USE_NINJA := false
 TARGET_BOARD_PLATFORM := exynos5
 TARGET_SLSI_VARIANT := cm
 TARGET_SOC := exynos5433
-
-# Breaks FP
-#USE_CLANG_PLATFORM_BUILD := true 
 
 # CPU
 TARGET_CPU_ABI := armeabi-v7a
@@ -37,14 +35,17 @@ BOARD_FLASH_BLOCK_SIZE := 4096
 
 # PowerHAL
 TARGET_POWERHAL_VARIANT := samsung
-TARGET_DT2W_PATH := /sys/class/sec/tsp/input/rmii2c/wake_gesture
 
 # Sensors
 TARGET_NO_SENSOR_PERMISSION_CHECK := true
 
 # Kernel
 TARGET_KERNEL_SOURCE := kernel/samsung/trelte
-KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
+#KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
+#KERNEL_TOOLCHAIN_PREFIX := arm-eabi-
+#KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-eabi-4.8/bin/"
+KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-eabi-4.8/bin
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-eabi-
 
 # Use these flags if the board has a ext4 partition larger than 2gb
 BOARD_HAS_LARGE_FILESYSTEM := true
@@ -68,6 +69,8 @@ BOARD_USE_SAMSUNG_CAMERAFORMAT_NV21 := true
 
 # Graphics
 USE_OPENGL_RENDERER := true
+VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
+SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
 
 # Shader cache config options
 # Maximum size of the  GLES Shaders that can be cached for reuse.
@@ -83,10 +86,7 @@ MAX_EGL_CACHE_SIZE := 2048*1024
 # Android keeps 2 surface buffers at all time in case the hwcomposer
 # misses the time to swap buffers (in cases where it takes 16ms or
 # less). Use 3 to avoid timing issues.
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 5
-
-# Mixer
-BOARD_USE_BGRA_8888 := true
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 
 # GSC
 #BOARD_USES_ONLY_GSC0_GSC1 := true
@@ -117,7 +117,6 @@ endif
 BOARD_USES_HWC_SERVICES := true
 
 # HDMI
-#TARGET_LINUX_KERNEL_VERSION := 3.10
 BOARD_USES_NEW_HDMI := true
 BOARD_USES_GSC_VIDEO := true
 BOARD_USES_CEC := true
@@ -133,7 +132,7 @@ BOARD_USES_SCALER := true
 BOARD_USES_DT := true
 
 # Samsung LSI OpenMAX
-# TARGET_GLOBAL_CFLAGS += -DUSE_NATIVE_SEC_NV12TILED
+#TARGET_GLOBAL_CFLAGS += -DUSE_NATIVE_SEC_NV12TILED  ###=> commenting to build N
 
 # Samsung Seiren audio
 BOARD_USE_ALP_AUDIO := true
@@ -225,7 +224,7 @@ TARGET_IGNORE_RO_BOOT_REVISION := true
 BOARD_RIL_CLASS := ../../../$(LOCAL_PATH)/ril
 
 # frameworks/native/libs/binder/Parcel.cpp
-COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING
+#COMMON_GLOBAL_CFLAGS += -DDISABLE_ASHMEM_TRACKING ###=> commenting to build N
 
 # Recovery
 TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/ramdisk/fstab.universal5433
