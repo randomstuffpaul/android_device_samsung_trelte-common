@@ -11,13 +11,9 @@ on init
     mkdir /preload 0771 system system
 
     # Support legacy paths
-
     symlink /sdcard /storage/sdcard0
-    symlink /storage/usbdisk /mnt/usbdisk	
-
-    #symlink /sdcard /storage/sdcard0
-    #symlink /sdcard1 /storage/sdcard1
-    #symlink /sdcard1 /external_sd
+    symlink /sdcard1 /storage/sdcard1
+    symlink /sdcard1 /external_sd
 
     symlink /data/app /factory
 
@@ -571,6 +567,9 @@ on fs
     chown system system /sys/class/mdnie/mdnie/auto_brightness
     chown system system /sys/class/mdnie/mdnie/sensorRGB
 
+# Default MDNIE mode (cinema)
+    write /sys/class/mdnie/mdnie/mode 3
+
 # Copy DRM Key
     copy /system/app/wv.keys /factory/wv.keys
 
@@ -698,6 +697,7 @@ service ipsec-daemon /system/bin/IPSecService
 service battery_charger /sbin/healthd -c
     class charger
     critical
+    seclabel u:r:healthd:s0
 
 # LPM
 on property:ro.bootmode=charger

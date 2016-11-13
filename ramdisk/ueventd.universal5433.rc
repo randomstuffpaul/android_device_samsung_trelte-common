@@ -62,7 +62,7 @@
 /dev/graphics/fb1         0660   media      graphics
 
 # mfc
-/dev/video6               0660   media      media
+/dev/video6               0660   media      drmrpc
 /dev/video7               0660   media      media
 /dev/video8               0660   media      media
 /dev/video9               0660   media      media
@@ -129,12 +129,6 @@
 /dev/block/mmcblk0p14     0660   system     radio
 /dev/umts*                0660   system     radio
 
-# MobiCore
-/dev/mobicore             0700   system     system
-/dev/mobicore-user        0666   radio      system
-
-# Secure MEM driver
-/dev/s5p-smem             0660   system     system
 
 # DNT
 /dev/block/mmcblk0p15     0660   system     system
