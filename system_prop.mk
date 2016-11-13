@@ -10,15 +10,16 @@ PRODUCT_PROPERTY_OVERRIDES += \
     media.aac_51_output_enabled=true
     #use.dedicated.device.for.voip=false \
     
-
 # Bluetooth
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.bt.bdaddr_path="/efs/bluetooth/bt_addr" \
-    media.stagefright.use-awesome=true
+    ro.bt.bdaddr_path="/efs/bluetooth/bt_addr"
 
-# Camera
+# Bluetooth workaround:
+# The new CAF code defaults to MCT HAL, but we
+# need the old H4 HAL for our Broadcom WiFi.
 PRODUCT_PROPERTY_OVERRIDES += \
-    camera2.portability.force_api=1
+    qcom.bluetooth.soc=rome
+
 
 # Dalvik/Art
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -59,6 +60,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.hwui.text_large_cache_width=4096 \
     ro.hwui.text_large_cache_height=2048 \
     ro.hwui.fbo_cache_size=16
+
+# Media
+PRODUCT_PROPERTY_OVERRIDES += \
+    media.stagefright.legacyencoder=1 \
+    media.stagefright.less-secure=1
 
 # Network
 # Define default initial receive window size in segments.
