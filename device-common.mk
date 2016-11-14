@@ -55,9 +55,11 @@ PRODUCT_COPY_FILES += \
 ### DISPLAY
 ###########################################################
 
+#PRODUCT_AAPT_CONFIG := normal
+#PRODUCT_AAPT_PREF_CONFIG := 560dpi
+#PRODUCT_AAPT_PREBUILT_DPI := xxxhdpi xxhdpi xhdpi hdpi
 PRODUCT_AAPT_CONFIG := xlarge
 PRODUCT_AAPT_PREF_CONFIG := xhdpi
-#PRODUCT_AAPT_PREBUILT_DPI := xxxhdpi xxhdpi xhdpi hdpi
 # A list of dpis to select prebuilt apk, in precedence order.
 PRODUCT_AAPT_PREBUILT_DPI := hdpi mdpi
 
