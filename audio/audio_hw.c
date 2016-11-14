@@ -1561,7 +1561,7 @@ static void do_in_standby(struct stream_in *in)
     /* if in-call, dont turn off PCM */
     if (adev->in_call) {
         ALOGV("%s: input standby in-call, exiting...", __func__);
-        return 0;
+        return;
     }
 
     if (!in->standby) {
@@ -2255,3 +2255,4 @@ struct audio_module HAL_MODULE_INFO_SYM = {
         .methods = &hal_module_methods,
     },
 };
+
