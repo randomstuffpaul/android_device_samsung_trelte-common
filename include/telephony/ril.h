@@ -545,7 +545,7 @@ typedef struct {
         /* Valid field if tech is RADIO_TECH_3GPP2. See RIL_REQUEST_CDMA_SEND_SMS */
         RIL_CDMA_SMS_Message* cdmaMessage;
 
-/* Valid field if tech is RADIO_TECH_3GPP. See RIL_REQUEST_SEND_SMS */
+      /* Valid field if tech is RADIO_TECH_3GPP. See RIL_REQUEST_SEND_SMS */
         char**                gsmMessage;   /* This is an array of pointers where pointers
                                                are contiguous but elements pointed by those pointers
                                                are not contiguous
@@ -699,7 +699,6 @@ typedef struct {
                                         * 0 = not suspended.
                                         */
 } RIL_LceDataInfo;
-
 
 typedef enum {
     RIL_MATCH_ALL = 0,          /* Apply to all carriers with the same mcc/mnc */
@@ -5129,8 +5128,6 @@ typedef struct {
  */
 #define RIL_REQUEST_GET_ACTIVITY_INFO 135
 
-
-
 /**
  * RIL_REQUEST_SET_CARRIER_RESTRICTIONS
  *
@@ -5181,8 +5178,6 @@ typedef struct {
  *  RIL_E_REQUEST_NOT_SUPPORTED
  */
 #define RIL_REQUEST_GET_CARRIER_RESTRICTIONS 137
-
-
 
 /**********************************************************
  * SAMSUNG REQUESTS
@@ -5839,6 +5834,7 @@ typedef struct {
  *
  */
 #define RIL_UNSOL_LCEDATA_RECV 1045
+
 
  /**
   * RIL_UNSOL_PCO_DATA
