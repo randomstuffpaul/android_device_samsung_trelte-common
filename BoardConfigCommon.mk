@@ -5,10 +5,10 @@ TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
 
 # Platform
-USE_NINJA := false
 TARGET_BOARD_PLATFORM := exynos5
 TARGET_SLSI_VARIANT := cm
 TARGET_SOC := exynos5433
+USE_NINJA := false
 
 # CPU
 TARGET_CPU_ABI := armeabi-v7a
@@ -41,9 +41,6 @@ TARGET_NO_SENSOR_PERMISSION_CHECK := true
 
 # Kernel
 TARGET_KERNEL_SOURCE := kernel/samsung/trelte
-#KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
-#KERNEL_TOOLCHAIN_PREFIX := arm-eabi-
-#KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-eabi-4.8/bin/"
 KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-eabi-4.8/bin
 TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-eabi-
 
@@ -66,6 +63,7 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(LOCAL_PATH)/bluetooth
 
 # Camera
 BOARD_USE_SAMSUNG_CAMERAFORMAT_NV21 := true
+TARGET_HAS_LEGACY_CAMERA_HAL1 := true
 
 # Graphics
 USE_OPENGL_RENDERER := true
@@ -91,8 +89,6 @@ NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 # GSC
 #BOARD_USES_ONLY_GSC0_GSC1 := true
 
-# SCREEN CASTING
-BOARD_USES_WFD := true
 ############################################################################################
 
 # Boot animation
@@ -103,13 +99,13 @@ TARGET_SCREEN_HEIGHT := 2560
 TARGET_SCREEN_WIDTH := 1600
 
 # Enable dex-preoptimization to speed up first boot sequence
-ifeq ($(HOST_OS),linux)
-  ifneq ($(TARGET_BUILD_VARIANT),eng)
-    ifeq ($(WITH_DEXPREOPT),)
-      WITH_DEXPREOPT := true
-    endif
-  endif
-endif
+#ifeq ($(HOST_OS),linux)
+#  ifneq ($(TARGET_BUILD_VARIANT),eng)
+#    ifeq ($(WITH_DEXPREOPT),)
+#      WITH_DEXPREOPT := true
+#    endif
+#  endif
+#endif
 
 ############################################################################################
 
@@ -130,9 +126,6 @@ BOARD_USES_SKIA_FIMGAPI := true
 # (G)SCALER
 BOARD_USES_SCALER := true
 BOARD_USES_DT := true
-
-# Samsung LSI OpenMAX
-#TARGET_GLOBAL_CFLAGS += -DUSE_NATIVE_SEC_NV12TILED  ###=> commenting to build N
 
 # Samsung Seiren audio
 BOARD_USE_ALP_AUDIO := true
