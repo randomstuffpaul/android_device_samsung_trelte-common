@@ -190,7 +190,10 @@ struct audio_device {
     int cur_route_id;     /* current route ID: combination of input source
                            * and output device IDs */
     audio_mode_t mode;
-    
+
+    const char *active_output_device;
+    const char *active_input_device;
+
     /* Call audio */
     struct pcm *pcm_voice_rx;
     struct pcm *pcm_voice_tx;
@@ -460,9 +463,10 @@ static void select_devices(struct audio_device *adev)
     int output_device_id = get_output_device_id(adev->out_device);
     int input_source_id = get_input_source_id(adev->input_source, adev->wb_amr);
     const char *output_route = NULL;
+    const char *output_device = NULL;
     const char *input_route = NULL;
-    char output_gain[64] = {0};
-    char input_gain[64] = {0};
+    const char *input_device = NULL;
+    char current_device[64] = {0};
     int new_route_id;
 
     if (adev->hdmi_drv_fd == 0)
@@ -480,8 +484,12 @@ static void select_devices(struct audio_device *adev)
         if (output_device_id != OUT_DEVICE_NONE) {
             input_route =
             route_configs[input_source_id][output_device_id]->input_route;
+            input_device =
+            route_configs[input_source_id][output_device_id]->input_device;
             output_route =
             route_configs[input_source_id][output_device_id]->output_route;
+            output_device =
+            route_configs[input_source_id][output_device_id]->output_device;
         } else {
             switch (adev->in_device) {
                 case AUDIO_DEVICE_IN_WIRED_HEADSET & ~AUDIO_DEVICE_BIT_IN:
@@ -501,11 +509,15 @@ static void select_devices(struct audio_device *adev)
 
             input_route =
             (route_configs[input_source_id][output_device_id])->input_route;
+            input_device =
+            (route_configs[input_source_id][output_device_id])->input_device;
         }
     } else {
         if (output_device_id != OUT_DEVICE_NONE) {
             output_route =
             (route_configs[IN_SOURCE_MIC][output_device_id])->output_route;
+            output_device =
+            (route_configs[IN_SOURCE_MIC][output_device_id])->output_device;
         }
     }
 
@@ -517,14 +529,42 @@ static void select_devices(struct audio_device *adev)
           input_route ? input_route : "none");
 
     /*
+     * The Arizona driver documentation describes firmware loading this way:
+     *
+     * To load a firmware, or to reboot the ADSP with different firmware you
+     * must:
+     * - Disconnect the ADSP from any active audio path so that it will be
+     *   powered-down
+     * - Set the firmware control to the firmware you want to load
+     * - Connect the ADSP to an active audio path so it will be powered-up
+     */
+    
+    /*
+     * Disable the output and input device
+     */
+    if (adev->active_output_device != NULL) {
+        snprintf(current_device,
+                 sizeof(current_device),
+                 "%s-disable",
+                 adev->active_output_device);
+        audio_route_apply_path(adev->ar, current_device);
+    }
+    
+    if (adev->active_input_device != NULL) {
+        snprintf(current_device,
+                 sizeof(current_device),
+                 "%s-disable",
+                 adev->active_input_device);
+        audio_route_apply_path(adev->ar, current_device);
+    }
+    audio_route_update_mixer(adev->ar);
+
+    /*
      * Reset the audio routes to deactivate active audio paths
      */
     audio_route_reset(adev->ar);
     audio_route_update_mixer(adev->ar);
 
-    /*
-     * Give the DSP some time before loading the new firmware modes
-     */
     usleep(50);
 
     /*
@@ -532,25 +572,37 @@ static void select_devices(struct audio_device *adev)
      */
     if (output_route != NULL) {
         audio_route_apply_path(adev->ar, output_route);
-
-        snprintf(output_gain,
-                 sizeof(output_gain),
-                 "gain-%s",
-                 output_route);
-        audio_route_apply_path(adev->ar, output_gain);
-        ALOGV("%s: Applying gain [%s] for route [%s]", __func__,
-              output_gain, output_route);
     }
     if (input_route != NULL) {
         audio_route_apply_path(adev->ar, input_route);
-
-        snprintf(input_gain,
-                 sizeof(input_gain),
-                 "gain-%s",
-                 input_route);
-        audio_route_apply_path(adev->ar, input_gain);
-        ALOGV("%s: Applying gain [%s] for route [%s]", __func__,
-              input_gain, input_route);
+    }
+    audio_route_update_mixer(adev->ar);
+    
+    usleep(50);
+    
+    /*
+     * Turn on the devices
+     */
+    if (output_device != NULL) {
+        snprintf(current_device,
+                 sizeof(current_device),
+                 "%s-enable",
+                 output_device);
+        audio_route_apply_path(adev->ar, current_device);
+        adev->active_output_device = output_device;
+    } else {
+        adev->active_output_device = NULL;
+    }
+    
+    if (input_device != NULL) {
+        snprintf(current_device,
+                 sizeof(current_device),
+                 "%s-enable",
+                 input_device);
+        audio_route_apply_path(adev->ar, current_device);
+        adev->active_input_device = input_device;
+    } else {
+        adev->active_input_device = NULL;
     }
     audio_route_update_mixer(adev->ar);
 }
@@ -861,11 +913,7 @@ static void adev_set_call_audio_path(struct audio_device *adev)
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO:
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET:
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT:
-            if (adev->bluetooth_nrec) {
-                device_type = SOUND_AUDIO_PATH_BLUETOOTH;
-            } else {
-                device_type = SOUND_AUDIO_PATH_BLUETOOTH_NO_NR;
-            }
+            device_type = SOUND_AUDIO_PATH_BLUETOOTH;
             break;
         default:
             /* if output device isn't supported, use handset by default */
@@ -1174,7 +1222,7 @@ static void do_out_standby(struct stream_out *out)
 
     ALOGV("%s: output standby: %d", __func__, out->standby);
 
-    /* if in-call, dont turn off PCM */
+     /* if in-call, dont turn off PCM */
     if (adev->in_call) {
         ALOGV("%s: output standby in-call, exiting...", __func__);
         return;
@@ -1558,6 +1606,7 @@ static void do_in_standby(struct stream_in *in)
 {
     struct audio_device *adev = in->dev;
 
+
     /* if in-call, dont turn off PCM */
     if (adev->in_call) {
         ALOGV("%s: input standby in-call, exiting...", __func__);
@@ -1798,16 +1847,16 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
         out->config.channels = popcount(config->channel_mask);
         out->pcm_device = PCM_DEVICE;
         type = OUTPUT_HDMI;
-    } else if (flags & AUDIO_OUTPUT_FLAG_FAST) {
-        ALOGV("*** %s: Fast buffer pcm config", __func__);
-        out->config = pcm_config_fast;
-        out->pcm_device = PCM_DEVICE;
-        type = OUTPUT_LOW_LATENCY;
-    } else {
+    } else if (flags & AUDIO_OUTPUT_FLAG_DEEP_BUFFER) {
         ALOGV("*** %s: Deep buffer pcm config", __func__);
         out->config = pcm_config_deep;
         out->pcm_device = PCM_DEVICE_DEEP;
         type = OUTPUT_DEEP_BUF;
+    } else {
+        ALOGV("*** %s: Fast buffer pcm config", __func__);
+        out->config = pcm_config_fast;
+        out->pcm_device = PCM_DEVICE;
+        type = OUTPUT_LOW_LATENCY;
     }
 
     out->stream.common.get_sample_rate = out_get_sample_rate;
