@@ -545,7 +545,7 @@ typedef struct {
         /* Valid field if tech is RADIO_TECH_3GPP2. See RIL_REQUEST_CDMA_SEND_SMS */
         RIL_CDMA_SMS_Message* cdmaMessage;
 
-      /* Valid field if tech is RADIO_TECH_3GPP. See RIL_REQUEST_SEND_SMS */
+        /* Valid field if tech is RADIO_TECH_3GPP. See RIL_REQUEST_SEND_SMS */
         char**                gsmMessage;   /* This is an array of pointers where pointers
                                                are contiguous but elements pointed by those pointers
                                                are not contiguous
@@ -5220,7 +5220,6 @@ typedef struct {
 #define RIL_REQUEST_GET_DISABLE_2G 10031
 #define RIL_REQUEST_SET_DISABLE_2G 10032
 
-
 /***********************************************************************/
 
 /**
@@ -5835,7 +5834,6 @@ typedef struct {
  */
 #define RIL_UNSOL_LCEDATA_RECV 1045
 
-
  /**
   * RIL_UNSOL_PCO_DATA
   *
@@ -6180,7 +6178,6 @@ void RIL_onUnsolicitedResponse(int unsolResponse, const void *data,
 
 void RIL_requestTimedCallback (RIL_TimedCallback callback,
                                void *param, const struct timeval *relativeTime);
-
 
 #endif /* RIL_SHLIB */
 

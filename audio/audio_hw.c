@@ -913,7 +913,7 @@ static void adev_set_call_audio_path(struct audio_device *adev)
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO:
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET:
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT:
-            device_type = SOUND_AUDIO_PATH_BLUETOOTH;
+             device_type = SOUND_AUDIO_PATH_BLUETOOTH;
             break;
         default:
             /* if output device isn't supported, use handset by default */
@@ -1221,13 +1221,13 @@ static void do_out_standby(struct stream_out *out)
     int i;
 
     ALOGV("%s: output standby: %d", __func__, out->standby);
-
-     /* if in-call, dont turn off PCM */
+    
+    /* if in-call, dont turn off PCM */
     if (adev->in_call) {
         ALOGV("%s: output standby in-call, exiting...", __func__);
         return;
     }
-
+    
     if (!out->standby) {
         for (i = 0; i < PCM_TOTAL; i++) {
             if (out->pcm[i]) {
@@ -1605,7 +1605,6 @@ static int in_set_format(struct audio_stream *stream __unused,
 static void do_in_standby(struct stream_in *in)
 {
     struct audio_device *adev = in->dev;
-
 
     /* if in-call, dont turn off PCM */
     if (adev->in_call) {
@@ -1996,7 +1995,7 @@ static int adev_set_voice_volume(struct audio_hw_device *dev, float volume)
                 break;
             case AUDIO_DEVICE_OUT_BLUETOOTH_SCO:
             case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET:
-            case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT:
+            case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT:		
             case AUDIO_DEVICE_OUT_ALL_SCO:
                 sound_type = SOUND_TYPE_BTVOICE;
                 break;

@@ -26,8 +26,9 @@ BOARD_KERNEL_SEPARATED_DT := true
 
 # /proc/partitions * 2 (why?) * BLOCK_SIZE (512) = size in bytes
 BOARD_BOOTIMAGE_PARTITION_SIZE := 14680064
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_CACHEIMAGE_PARTITION_SIZE := 209715200
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 19777216
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 3774873600
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 27028094976
 # blockdev --getbsz /dev/block/mmcblk0p9
@@ -43,6 +44,7 @@ TARGET_NO_SENSOR_PERMISSION_CHECK := true
 TARGET_KERNEL_SOURCE := kernel/samsung/trelte
 KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-eabi-4.8/bin
 TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-eabi-
+#KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
 
 # Use these flags if the board has a ext4 partition larger than 2gb
 BOARD_HAS_LARGE_FILESYSTEM := true
@@ -68,7 +70,7 @@ TARGET_HAS_LEGACY_CAMERA_HAL1 := true
 # Graphics
 USE_OPENGL_RENDERER := true
 VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
-SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
+PRESENT_TIME_OFFSET_FROM_VSYNC_NS := 1100000
 
 # Shader cache config options
 # Maximum size of the  GLES Shaders that can be cached for reuse.
@@ -84,28 +86,31 @@ MAX_EGL_CACHE_SIZE := 2048*1024
 # Android keeps 2 surface buffers at all time in case the hwcomposer
 # misses the time to swap buffers (in cases where it takes 16ms or
 # less). Use 3 to avoid timing issues.
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 5
 
 # GSC
 #BOARD_USES_ONLY_GSC0_GSC1 := true
 
+# SCREEN CASTING
+BOARD_USES_WFD := true
 ############################################################################################
 
 # Boot animation
 TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 TARGET_SAVE_RAM_IN_BOOTANIMATION := true
+TARGET_BOOTANIMATION_MULTITHREAD_DECODE := true
 TARGET_SCREEN_HEIGHT := 2560
 TARGET_SCREEN_WIDTH := 1600
 
 # Enable dex-preoptimization to speed up first boot sequence
-#ifeq ($(HOST_OS),linux)
-#  ifneq ($(TARGET_BUILD_VARIANT),eng)
-#    ifeq ($(WITH_DEXPREOPT),)
-#      WITH_DEXPREOPT := true
-#    endif
-#  endif
-#endif
+ifeq ($(HOST_OS),linux)
+  ifneq ($(TARGET_BUILD_VARIANT),eng)
+    ifeq ($(WITH_DEXPREOPT),)
+      WITH_DEXPREOPT := true
+    endif
+  endif
+endif
 
 ############################################################################################
 
@@ -113,6 +118,7 @@ TARGET_SCREEN_WIDTH := 1600
 BOARD_USES_HWC_SERVICES := true
 
 # HDMI
+#TARGET_LINUX_KERNEL_VERSION := 3.10
 BOARD_USES_NEW_HDMI := true
 BOARD_USES_GSC_VIDEO := true
 BOARD_USES_CEC := true
@@ -187,9 +193,6 @@ WIFI_DRIVER_NVRAM_PATH           := "/etc/wifi/nvram_net.txt"
 WIFI_DRIVER_FW_PATH_STA          := "/etc/wifi/bcmdhd_sta.bin"
 WIFI_DRIVER_FW_PATH_AP           := "/etc/wifi/bcmdhd_apsta.bin"
 
-# Webkit
-ENABLE_WEBGL := true
-
 # WFD
 BOARD_USES_WFD := true
 
@@ -227,9 +230,6 @@ TARGET_NO_SENSOR_PERMISSION_CHECK := true
 
 ### FONTS
 EXTENDED_FONT_FOOTPRINT := true
-
-### WEBKIT
-ENABLE_WEBGL := true
 
 # SELinux
 BOARD_SEPOLICY_DIRS += device/samsung/trelte-common/sepolicy
