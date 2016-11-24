@@ -2,10 +2,8 @@ DEVICE_PACKAGE_OVERLAYS += device/samsung/trelte-common/overlay
 
 LOCAL_PATH := device/samsung/trelte-common
 
-###########################################################
-### RAMDISK
-###########################################################
 
+# Ramdisk
 PRODUCT_PACKAGES += \
     fstab.universal5433 \
     init.power.rc \
@@ -15,10 +13,7 @@ PRODUCT_PACKAGES += \
     init.universal5433.usb.rc \
     ueventd.universal5433.rc
 
-###########################################################
-### PERMISSONS
-###########################################################
-
+# Permissions
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.audio.low_latency.xml:system/etc/permissions/android.hardware.audio.low_latency.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
@@ -48,20 +43,13 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.sip.xml:system/etc/permissions/android.software.sip.xml \
     frameworks/native/data/etc/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
     frameworks/native/data/etc/com.nxp.mifare.xml:system/etc/permissions/com.nxp.mifare.xml \
-        frameworks/native/data/etc/android.software.freeform_window_management.xml:system/etc/permissions/android.software.freeform_window_management.xml \
+    frameworks/native/data/etc/android.software.freeform_window_management.xml:system/etc/permissions/android.software.freeform_window_management.xml \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
 
-###########################################################
-### DISPLAY
-###########################################################
-
-#PRODUCT_AAPT_CONFIG := normal
-#PRODUCT_AAPT_PREF_CONFIG := 560dpi
-#PRODUCT_AAPT_PREBUILT_DPI := xxxhdpi xxhdpi xhdpi hdpi
-PRODUCT_AAPT_CONFIG := xlarge
-PRODUCT_AAPT_PREF_CONFIG := xhdpi
-# A list of dpis to select prebuilt apk, in precedence order.
-PRODUCT_AAPT_PREBUILT_DPI := hdpi mdpi
+# Display
+PRODUCT_AAPT_CONFIG := normal
+PRODUCT_AAPT_PREF_CONFIG := 560dpi
+PRODUCT_AAPT_PREBUILT_DPI := xxxhdpi xxhdpi xhdpi hdpi
 
 PRODUCT_PACKAGES += \
     gralloc.exynos5
@@ -73,14 +61,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     libstlport
 
-# hardware/samsung/AdvancedDisplay (MDNIE)
-#PRODUCT_PACKAGES += \
-#    AdvancedDisplay
+# Hardware/Samsung/AdvancedDisplay (MDNIE)
+PRODUCT_PACKAGES += \
+    AdvancedDisplay
 
-###########################################################
-### RADIO
-###########################################################
-
+# Radio
 PRODUCT_PACKAGES += \
     libxml2 \
     libprotobuf-cpp-full
@@ -90,10 +75,8 @@ PRODUCT_PACKAGES += \
     libsecril-client-sap \
     modemloader
 
-###########################################################
-### WIFI
-###########################################################
 
+# Wifi
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf \
     $(LOCAL_PATH)/configs/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf
@@ -105,14 +88,7 @@ PRODUCT_PACKAGES += \
     libwpa_client \
     wpa_supplicant
 
-# external/wpa_supplicant_8/wpa_supplicant/wpa_supplicant_conf.mk
-PRODUCT_PACKAGES += \
-    wpa_supplicant.conf
-
-###########################################################
-### NFC
-###########################################################
-
+# Nfc
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/nfc/libnfc-sec-hal.conf:system/etc/libnfc-sec-hal.conf \
     $(LOCAL_PATH)/configs/nfc/libnfc-sec.conf:system/etc/libnfc-brcm.conf \
@@ -123,10 +99,7 @@ PRODUCT_PACKAGES += \
     NfcNci \
     Tag
 
-###########################################################
-### AUDIO
-###########################################################
-
+# Audio
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/audio/audio_effects.conf:system/etc/audio_effects.conf \
     $(LOCAL_PATH)/configs/audio/audio_policy.conf:system/etc/audio_policy.conf
@@ -137,53 +110,37 @@ PRODUCT_PACKAGES += \
     audio.r_submix.default \
     audio.primary.universal5433
 
-###########################################################
-### OMX/MEDIA
-###########################################################
-
+# OMX/Media
 PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml  \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml \
     $(LOCAL_PATH)/configs/media/media_codecs.xml:system/etc/media_codecs.xml \
     $(LOCAL_PATH)/configs/media/media_profiles.xml:system/etc/media_profiles.xml
 
-###########################################################
-### POWER
-###########################################################
-
+# Power
 PRODUCT_PACKAGES += \
     power.universal5433
 
-###########################################################
-### LIGHTS
-###########################################################
-
+# Lights
 PRODUCT_PACKAGES += \
     lights.universal5433
 
-###########################################################
-### GPS
-###########################################################
-
+# Gps
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/gps/gps.conf:system/etc/gps.conf \
     $(LOCAL_PATH)/configs/gps/gps.xml:system/etc/gps.xml
 
-###########################################################
-### CAMERA
-###########################################################
 
+# Camera
 PRODUCT_PACKAGES += \
     camera.universal5433
 
-###- PRODUCT_PACKAGES += \
-    ###- Snap
+#PRODUCT_PACKAGES += \
+#    Snap
 
-###########################################################
-### TOUCHSCREEN
-###########################################################
-
+# Touchscreen
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/keylayout/gpio_keys_8.kl:/system/usr/keylayout/gpio_keys_8.kl \
     $(LOCAL_PATH)/configs/keylayout/sec_touchkey.kl:/system/usr/keylayout/sec_touchkey.kl
@@ -194,11 +151,10 @@ PRODUCT_COPY_FILES += \
 ###########################################################
 
 # Fingerprint
-#PRODUCT_PACKAGES += \
-#    fingerprintd \
-#    fingerprint.exynos5 \
-#    ValidityService
-
+PRODUCT_PACKAGES += \
+    fingerprintd \
+    fingerprint.exynos5 \
+    ValidityService
 
 ###########################################################
 ### STYLUS
@@ -208,44 +164,26 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/idc/ft5x06_ts.idc:/system/usr/idc/ft5x06_ts.idc \
     $(LOCAL_PATH)/configs/idc/sec_e-pen.idc:/system/usr/idc/sec_e-pen.idc
 
-###########################################################
-### CHARGER
-###########################################################
-
+# Offmode charger
+# Use cm images if available, aosp ones otherwise
 PRODUCT_PACKAGES += \
     charger_res_images \
     cm_charger_res_images
 
-###########################################################
-### PACKAGES
-###########################################################
-
+# Packages
 PRODUCT_PACKAGES += \
     SamsungServiceMode
 
-
-###########################################################
-### DOZE
-###########################################################
-#PRODUCT_PACKAGES += \
-#    DeviceSettings
-
-###########################################################
-### DEFAULT PROPS
-###########################################################
-
+# Default props
 ADDITIONAL_DEFAULT_PROPERTIES += \
     ro.debug_level=0x4948
 
 # System properties
 -include $(LOCAL_PATH)/system_prop.mk
 
-# call broadcom configs
-#$(call inherit-product, hardware/broadcom/wlan/bcmdhd/config/config-bcm.mk)
-
-# call Samsung LSI board support package
+# Call Samsung LSI board support package
 $(call inherit-product, hardware/samsung_slsi-cm/exynos5/exynos5.mk)
 $(call inherit-product, hardware/samsung_slsi-cm/exynos5433/exynos5433.mk)
 
-# call the proprietary setup
-$(call inherit-product, vendor/samsung/trelte-common/trelte-common-vendor.mk)
+# Call the proprietary setup
+$(call inherit-product-if-exists, vendor/samsung/trelte-common/trelte-common-vendor.mk)

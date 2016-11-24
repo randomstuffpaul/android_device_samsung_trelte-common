@@ -1,5 +1,4 @@
 # Audio
-
 PRODUCT_PROPERTY_OVERRIDES += \
     af.fast_track_multiplier=1 \
     audio_hal.force_voice_config=wide \
@@ -10,6 +9,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     media.aac_51_output_enabled=true
     #use.dedicated.device.for.voip=false \
     
+
 # Bluetooth
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.bt.bdaddr_path="/efs/bluetooth/bt_addr"
@@ -19,7 +19,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # need the old H4 HAL for our Broadcom WiFi.
 PRODUCT_PROPERTY_OVERRIDES += \
     qcom.bluetooth.soc=rome
-
 
 # Dalvik/Art
 PRODUCT_PROPERTY_OVERRIDES += \
